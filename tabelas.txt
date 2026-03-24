@@ -1,0 +1,36 @@
+CREATE TABLE pavilhoes (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    morada VARCHAR(255),
+    concelho VARCHAR(100),
+    geom geometry(Point, 4326) NOT NULL
+);
+
+CREATE TABLE equipas (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    escalao VARCHAR(100),
+    associacao VARCHAR(100),
+    pavilhao_id INTEGER NOT NULL,
+    CONSTRAINT fk_pavilhao
+        FOREIGN KEY (pavilhao_id)
+        REFERENCES pavilhoes(id)
+);
+
+CREATE INDEX idx_pavilhoes_geom
+ON pavilhoes
+USING GIST (geom);
+
+CREATE VIEW vw_equipas_pavilhoes AS
+SELECT
+    e.id AS equipa_id,
+    e.nome AS equipa,
+    e.escalao,
+    e.associacao,
+    p.id AS pavilhao_id,
+    p.nome AS pavilhao,
+    p.morada,
+    p.concelho,
+    p.geom
+FROM equipas e
+JOIN pavilhoes p ON e.pavilhao_id = p.id;
